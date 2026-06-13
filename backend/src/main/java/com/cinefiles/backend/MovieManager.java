@@ -2,6 +2,9 @@ package com.cinefiles.backend;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MovieManager {
 
@@ -81,5 +84,31 @@ public class MovieManager {
 
         // 3. If movie was not found, return an empty hand (null) instead of false
         return null;
+    }
+    public static List<String> getRecommendations(String searchedTitle) {
+        List<String> recommendations = new ArrayList<>();
+
+        // The exact SQL you just learned, but adapted for the searched movie!
+        String sql = "SELECT title, rating FROM movies WHERE attribute = " +
+                "(SELECT attribute FROM movies WHERE title = ? LIMIT 1) " +
+                "AND title != ? ORDER BY rating DESC LIMIT 5";
+
+        try (Connection conn = DatabaseEngine.connect(); // Your HikariCP pool
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, searchedTitle); // Finds the genre of the searched movie
+            pstmt.setString(2, searchedTitle); // Makes sure we don't recommend the searched movie itself
+
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                String title = rs.getString("title");
+                double rating = rs.getDouble("rating");
+                recommendations.add(title + " (Rating: " + rating + ")");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return recommendations;
     }
 }

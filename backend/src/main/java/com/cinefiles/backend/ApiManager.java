@@ -6,7 +6,7 @@ import java.net.http.HttpResponse;
 
 public class ApiManager {
 
-    // You will need to get a free API key from omdbapi.com
+    // need to get a free API key from omdbapi.com
     // Instead of: private static final String API_KEY = "12345abc";
     private static final String API_KEY = System.getenv("OMDB_API_KEY");
 
